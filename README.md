@@ -1,1 +1,0 @@
-# plataforma-salud-rural

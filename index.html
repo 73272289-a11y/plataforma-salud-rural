@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plataforma de Salud Rural - Región Junín</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="estado-conexion" class="network-simulator">
+      <span id="texto-conexion"
+        >🌐 CONECTADO A BASE DE DATOS CENTRAL (SUPABASE)</span
+      >
+      <button id="btn-simular-corte" class="toggle-btn">
+        ❌ Simular Corte de Señal (Modo Offline)
+      </button>
+    </div>
+
+    <header>
+      <div class="logo-title-area">
+        <div class="app-logo-placeholder">🏥</div>
+        <div>
+          <h1>MINSA - Puesto de Salud I-1</h1>
+          <p style="font-size: 0.8rem; opacity: 0.8">
+            Sistema de Contingencia Satelital y Triaje Clínico
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="stats-grid">
+        <div class="stat-card" style="border-left-color: var(--primary)">
+          <h3>Total Pacientes Padrón</h3>
+          <div id="total-pacientes-reg" class="value">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: var(--secondary)">
+          <h3>Triajes Realizados</h3>
+          <div id="total-triajes-realizados" class="value">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: var(--danger)">
+          <h3>Alertas Críticas Emitidas</h3>
+          <div id="alertas-criticas-emitidas" class="value">0</div>
+        </div>
+      </div>
+
+      <div class="forms-wrapper" style="margin-bottom: 30px">
+        <div class="content-box-form">
+          <h2>📝 Registrar Nuevo Paciente (Padrón Local)</h2>
+          <form id="form-paciente" onsubmit="return false;">
+            <div class="form-group">
+              <label for="nuevo-nombre">Nombre Completo:</label>
+              <input
+                type="text"
+                id="nuevo-nombre"
+                placeholder="Ej. Juan Pérez"
+              />
+            </div>
+            <div class="form-group">
+              <label for="nuevo-lugar">Comunidad / Localidad Rural:</label>
+              <input
+                type="text"
+                id="nuevo-lugar"
+                placeholder="Ej. Comas, Concepción"
+              />
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="nuevo-sexo">Sexo:</label>
+                <select id="nuevo-sexo">
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="nuevo-edad">Edad (Años):</label>
+                <input
+                  type="number"
+                  id="nuevo-edad"
+                  min="0"
+                  max="120"
+                  placeholder="Ej. 45"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              id="btn-guardar-paciente"
+              class="btn-secondary"
+            >
+              💾 Guardar en Padrón
+            </button>
+          </form>
+        </div>
+
+        <div class="content-box-form">
+          <h2>🩺 Nueva Ficha Médica de Triaje</h2>
+          <form id="form-triaje" onsubmit="return false;">
+            <div class="form-group">
+              <label for="select-pacientes"
+                >Seleccionar Paciente de la Lista:</label
+              >
+              <select id="select-pacientes">
+                <option value="" disabled selected>Cargando padrón...</option>
+              </select>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="triaje-peso">Peso (kg):</label>
+                <input type="number" id="triaje-peso" step="0.1" value="65.0" />
+              </div>
+              <div class="form-group">
+                <label for="triaje-talla">Talla (cm):</label>
+                <input type="number" id="triaje-talla" value="160" />
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="triaje-fc">Frecuencia Cardíaca (lpm):</label>
+                <input type="number" id="triaje-fc" value="75" />
+              </div>
+              <div class="form-group">
+                <label for="triaje-temp">Temperatura (°C):</label>
+                <input type="number" id="triaje-temp" step="0.1" value="36.5" />
+              </div>
+            </div>
+            <button type="button" id="btn-guardar-triaje" class="btn-submit">
+              🩺 Confirmar y Evaluar Triaje
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="forms-wrapper">
+        <div class="content-box">
+          <h2>📋 Padrón Actualizado de Pacientes</h2>
+          <div style="overflow-x: auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Paciente</th>
+                  <th>Comunidad</th>
+                  <th>Sexo</th>
+                  <th>Edad</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-pacientes-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="content-box">
+          <h2>📋 Historial Reciente de Triajes Clínicos</h2>
+          <div style="overflow-x: auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Paciente</th>
+                  <th>Biometría</th>
+                  <th>IMC</th>
+                  <th>FC</th>
+                  <th>Temp</th>
+                  <th>Riesgo Clínico</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-triajes-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="notificacion-flotante" class="notif-base"></div>
+
+    <footer>
+      <p>
+        © 2026 Sistema Integral de Salud Rural - Resiliencia Tecnológica en
+        Fronteras
+      </p>
+    </footer>
+
+    <script type="module" src="./src/adapters/input/UiAdapter.js"></script>
+  </body>
+</html>
